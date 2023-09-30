@@ -2,8 +2,10 @@ import Image from 'next/image'
 import React from 'react'
 import logo from '../../public/images/logo.png'
 import { HiOutlinePencilSquare, HiArrowLeftOnRectangle } from "react-icons/hi2";
+import { useSession, signIn, signOut } from 'next-auth/react'
 
 export default function Header() {
+    const { data: session } = useSession()
     const USER_IMAGE = "https://res.cloudinary.com/dknvsbuyy/image/upload/v1686314044/1617826370281_30f9a2a96a.jpg";
     return (
         <div className='flex justify-between p-4 border-b-[2px] border-blue-500'>
