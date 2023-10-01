@@ -1,14 +1,23 @@
+'use client';
 import React, { useEffect, useState } from 'react';
 import { Technology } from './../../data';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import InputTemplate from '@/ui/input-template';
+import { app } from './../../shared/firebaseConfig';
+import { doc, getFirestore, setDoc } from 'firebase/firestore';
+import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
+import Loader from '../loader';
+
 function Form() {
   const [inputs, setInputs] = useState({});
-  const [techList, setTechList] = useState([]);
-  const [file, setFile] = useState([]);
+  const [techList, setTechList] = useState<string[]>([]);
+  const [file, setFile] = useState<File | null>(null);
   const [submit, setSubmit] = useState(false);
   const [loader, setLoader] = useState(false);
   const [docId, setDocId] = useState(Date.now().toString());
+  const db = getFirestore(app);
+  const storage = getStorage();
 
   const { data: session } = useSession();
   const router = useRouter();
@@ -34,8 +43,7 @@ function Form() {
     }
   }, [docId, session]);
   const handleChange = (e: { target: { name: string; value: string } }) => {
-    const name = e.target.name;
-    const value = e.target.value;
+    const { name, value } = e.target;
 
     setInputs((values) => ({
       ...values,
@@ -48,14 +56,62 @@ function Form() {
       ...values,
       ['techList']: techList,
     }));
+    console.log(techList);
   }, [techList]);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoader(true);
+    const storageRef = ref(storage, 'ninja-projects/' + file?.name);
+    uploadBytes(storageRef, file as Blob)
+      .then((snapshot) => {
+        console.log('Uploaded a blob or file !');
+      })
+      .then((resp) => {
+        getDownloadURL(storageRef).then((url) => {
+          setInputs((values) => ({ ...values, image: url }));
+        });
+        setSubmit(true);
+      });
+    console.log(inputs);
+  };
+
+  useEffect(() => {
+    if (submit == true) {
+      saveDoc();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [submit]);
+
+  const saveDoc = async () => {
+    await setDoc(doc(db, 'Projects', Date.now().toString()), inputs);
+    setLoader(false);
+  };
+
+  const onTechSelect = (
+    name: string,
+    event: React.MouseEvent<HTMLInputElement, MouseEvent>,
+  ) => {
+    const ischecked = (event.target as HTMLInputElement).checked;
+    if (ischecked) {
+      setTechList((techList) => [...techList, name]);
+    } else {
+      let techListItem = techList.filter((item) => item !== name);
+      setTechList(techListItem);
+    }
+  };
 
   return (
     <div
       className="flex justify-center mt-10
   shadow-md mx-4 md:mx-56 lg:mx-72 p-5 rounded-md"
     >
-      <form>
+      {loader ? (
+        <div className="absolute">
+          <Loader />
+        </div>
+      ) : null}
+      <form onSubmit={(e) => handleSubmit(e)}>
         <h2
           className="text-[30px]
     font-extrabold text-blue-500"
@@ -63,12 +119,12 @@ function Form() {
           ADD PROJECT
         </h2>
         <h2 className="mb-6">Create New Project and Explore with Community</h2>
-        <input
+        <InputTemplate
+          required
           type="text"
           name="title"
           placeholder="Title"
-          required
-          onChange={handleChange}
+          handleChange={() => handleChange}
           className="w-full mb-4 border-[1px] p-2 rounded-md"
         />
         <textarea
@@ -84,48 +140,55 @@ function Form() {
         <div className="grid grid-cols-2 mb-4 md:grid-cols-3  ">
           {Technology.map((item, index) => (
             <div key={index} className="flex gap-2 items-center">
-              <input id="technology" type="checkbox" className="w-4 h-4" />
+              <input
+                onClick={(e) => onTechSelect(item.name, e)}
+                id="technology"
+                type="checkbox"
+                className="w-4 h-4"
+              />
               <label>{item.name}</label>
             </div>
           ))}
         </div>
-        <input
+        <InputTemplate
           type="text"
           name="app-demo-url"
           placeholder="App Demo Url"
-          onChange={handleChange}
+          handleChange={() => handleChange}
           className="w-full mb-4 border-[1px] p-2 rounded-md"
         />
-        <input
+        <InputTemplate
           type="text"
           name="ui-ux-design-url"
-          onChange={handleChange}
           placeholder="UI/UX Design Url(Figma)"
+          handleChange={() => handleChange}
           className="w-full mb-4 border-[1px] p-2 rounded-md"
         />
-        <input
+        <InputTemplate
           type="text"
           name="yt-url"
-          onChange={handleChange}
           placeholder="Youtube Tutorial Url"
+          handleChange={() => handleChange}
           className="w-full mb-4 border-[1px] p-2 rounded-md"
         />
-        <input
+        <InputTemplate
           type="text"
           name="github-url"
-          onChange={handleChange}
           placeholder="Github Source Code Url"
+          handleChange={() => handleChange}
           className="w-full mb-4 border-[1px] p-2 rounded-md"
         />
-
-        <input
+        <InputTemplate
           type="text"
-          onChange={handleChange}
           name="instagram"
           placeholder="Instagram Profile"
+          handleChange={() => handleChange}
           className="w-full mb-4 border-[1px] p-2 rounded-md"
         />
-        <input
+        <InputTemplate
+          handleChange={(e) =>
+            setFile(e && e.target && e.target.files && e.target.files[0])
+          }
           type="file"
           accept="image/gif, image/jpeg, image/png"
           className="mb-5 border-[1px] w-full"
