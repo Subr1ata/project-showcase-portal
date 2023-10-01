@@ -86,6 +86,7 @@ function Form() {
   const saveDoc = async () => {
     await setDoc(doc(db, 'Projects', Date.now().toString()), inputs);
     setLoader(false);
+    router.push('/profile');
   };
 
   const onTechSelect = (

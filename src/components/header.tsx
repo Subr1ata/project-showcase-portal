@@ -14,11 +14,10 @@ export default function Header() {
       <Image src={logo} alt={''} className="w-[115px]" priority />
       <div className="flex gap-5">
         <button
-          className="px-3 p-2 bg-black text-white rounded-full"
+          className="px-3 p-2 bg-blue-500 text-white rounded-full"
           onClick={() => router.push('/create-project')}
         >
-          {' '}
-          <span className="hidden sm:block">CREATE POST</span>{' '}
+          <span className="hidden sm:block">ADD PROJECT</span>
           <HiOutlinePencilSquare className="sm:hidden" />
         </button>
         <button className="px-3 p-2 bg-gray-200 text-gray-700 rounded-full">
@@ -40,7 +39,8 @@ export default function Header() {
             width={40}
             height={40}
             alt={'user_image'}
-            className="rounded-full"
+            className="rounded-full cursor-pointer"
+            onClick={() => router.push('/profile')}
           />
         ) : null}
       </div>
