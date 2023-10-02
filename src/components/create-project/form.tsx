@@ -44,7 +44,7 @@ function Form() {
   }, [docId, session]);
   const handleChange = (e: { target: { name: string; value: string } }) => {
     const { name, value } = e.target;
-
+    console.log('handleChange', name, value);
     setInputs((values) => ({
       ...values,
       [name]: value,
@@ -73,15 +73,14 @@ function Form() {
         });
         setSubmit(true);
       });
-    console.log(inputs);
   };
 
   useEffect(() => {
-    if (submit == true) {
+    if (submit == true && inputs['image' as keyof object]) {
       saveDoc();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [submit]);
+  }, [submit, inputs]);
 
   const saveDoc = async () => {
     await setDoc(doc(db, 'Projects', Date.now().toString()), inputs);
@@ -125,7 +124,7 @@ function Form() {
           type="text"
           name="title"
           placeholder="Title"
-          handleChange={() => handleChange}
+          handleChange={handleChange}
           className="w-full mb-4 border-[1px] p-2 rounded-md"
         />
         <textarea
@@ -155,35 +154,35 @@ function Form() {
           type="text"
           name="app-demo-url"
           placeholder="App Demo Url"
-          handleChange={() => handleChange}
+          handleChange={handleChange}
           className="w-full mb-4 border-[1px] p-2 rounded-md"
         />
         <InputTemplate
           type="text"
           name="ui-ux-design-url"
           placeholder="UI/UX Design Url(Figma)"
-          handleChange={() => handleChange}
+          handleChange={handleChange}
           className="w-full mb-4 border-[1px] p-2 rounded-md"
         />
         <InputTemplate
           type="text"
           name="yt-url"
           placeholder="Youtube Tutorial Url"
-          handleChange={() => handleChange}
+          handleChange={handleChange}
           className="w-full mb-4 border-[1px] p-2 rounded-md"
         />
         <InputTemplate
           type="text"
           name="github-url"
           placeholder="Github Source Code Url"
-          handleChange={() => handleChange}
+          handleChange={handleChange}
           className="w-full mb-4 border-[1px] p-2 rounded-md"
         />
         <InputTemplate
           type="text"
           name="instagram"
           placeholder="Instagram Profile"
-          handleChange={() => handleChange}
+          handleChange={handleChange}
           className="w-full mb-4 border-[1px] p-2 rounded-md"
         />
         <InputTemplate
