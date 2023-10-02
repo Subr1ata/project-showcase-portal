@@ -3,7 +3,7 @@ import ProjectInfo from './project-info';
 import TechList from './tech-list';
 import { deleteDoc, doc, getFirestore } from 'firebase/firestore';
 import { app } from '../../shared/firebaseConfig';
-// import { SelectedProjectContext } from "../profile/project-list";
+import { SelectedProjectContext } from '../profile/project-list';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 
@@ -13,17 +13,18 @@ function ProjectDetailModal({
   setShowModal: (e: boolean) => void;
 }) {
   const db = getFirestore(app);
-  // const { project, setProject } = useContext(SelectedProjectContext)
+  console.log(db);
+  const { project, setProject } = useContext(SelectedProjectContext);
   const { data: session } = useSession();
   const router = useRouter();
-  // const deleteProject = async () => {
-
-  //     await deleteDoc(doc(db, "Projects", project.id))
-  //         .then(resp => console.log(resp))
-  //     setShowModal(false);
-  //     window.location.reload()
-
-  // }
+  const deleteProject = async () => {
+    console.log('id => ', project);
+    await deleteDoc(doc(db, 'Projects', project.id))
+      .then((resp) => console.log(resp))
+      .catch((error) => console.log(error));
+    setShowModal(false);
+    window.location.reload();
+  };
 
   return (
     <>
@@ -48,14 +49,17 @@ function ProjectDetailModal({
 
             {/*footer*/}
             <div className="flex items-center justify-end p-2 rounded-b">
-              {/* {session?.user.email == project.email ? <button
-                                className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                                type="button"
-                                onClick={() => deleteProject()
-                                }
-                            >
-                                Delete
-                            </button> : null} */}
+              {session &&
+              session.user &&
+              session?.user.email == project.email ? (
+                <button
+                  className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                  type="button"
+                  onClick={async () => deleteProject()}
+                >
+                  Delete
+                </button>
+              ) : null}
               <button
                 className="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
                 type="button"
