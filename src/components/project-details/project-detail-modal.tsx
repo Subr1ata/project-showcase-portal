@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
-// import ProjectInfo from "./ProjectInfo";
-// import TechList from "./TechList";
+import ProjectInfo from './project-info';
+import TechList from './tech-list';
 import { deleteDoc, doc, getFirestore } from 'firebase/firestore';
 import { app } from '../../shared/firebaseConfig';
 // import { SelectedProjectContext } from "../profile/project-list";
@@ -40,8 +40,10 @@ function ProjectDetailModal({
               className="grid grid-cols-1 
                 md:grid-cols-2 p-8"
             >
-              <div className="">{/* <ProjectInfo /> */}</div>
-              {/* <TechList /> */}
+              <div className="">
+                <ProjectInfo />
+              </div>
+              <TechList />
             </div>
 
             {/*footer*/}
