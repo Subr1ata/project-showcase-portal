@@ -83,7 +83,7 @@ function Form() {
   }, [submit, inputs]);
 
   const saveDoc = async () => {
-    await setDoc(doc(db, 'Projects', Date.now().toString()), inputs);
+    await setDoc(doc(db, 'Projects', docId), inputs);
     setLoader(false);
     router.push('/profile');
   };
